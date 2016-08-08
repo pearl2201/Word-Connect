@@ -2,6 +2,7 @@ var fs = require('fs')
 
 var server = require('http').createServer()
 var io = require('socket.io')(server)
+var dictGame = require('./worddict')
 
 var players = []
 var dictGame
@@ -82,49 +83,6 @@ function CheckUserAccount (username, password) {
   }
 }
 
-function worddict (callback) {
-  var dictWord = []
-
-  var fileDict = fs.createReadStream('dict/dict.txt')
-
-  this.read = function () {
-    console.log('read')
-    readLines(fileDict, callback)
-  }
-  function readLines (input, callback) {
-    var remaining = ''
-
-    input.on('data', function (data) {
-      remaining += data
-      var index = remaining.indexOf('\n')
-      while (index > -1) {
-        var line = remaining.substring(0, index)
-        remaining = remaining.substring(index + 1)
-
-        dictWord.push(line)
-        // console.log(line)
-
-        index = remaining.indexOf('\n')
-      }
-    })
-
-    input.on('end', function () {
-      if (remaining.length > 0) {
-        dictWord.push(remaining)
-      // console.log(remaining)
-      }
-
-    // callback()
-    })
-  }
-
-  this.getWord = function () {
-    var r = Math.floor(Math.random() * (dictWord.length - 1))
-
-    return dictWord[r]
-  }
-}
-dictGame = new worddict(Init)
 dictGame.read()
 console.log('Server is now running...')
 // io.attach(4568)
