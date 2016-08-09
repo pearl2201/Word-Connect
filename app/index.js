@@ -1,7 +1,7 @@
 var server = require('http').createServer()
 var io = require('socket.io')(server)
 var worddict = require('./worddict')
-var dataUserManager = require('./DataUserManager')
+var DataUserManager = require('./DataUserManager')
 var players = []
 var dictGame
 var currQuestion = ''
@@ -10,15 +10,13 @@ var currIdAnswer = 0
 var countPlayerReceiveQuestion = 0
 var countPlayerAnswerCorrect = 0
 var countPlayerAnswerWrong = 0
-var db = new dataUserManager()
-var listUser = []
-var boardRank = []
+var db = new DataUserManager()
+
 process.stdin.resume() // so the program will not close instantly
 
 function exitHandler (options, err) {
   if (err) console.log(err.stack)
-  if (options.exit || option.cleanup) {
-    db.close()
+  else if (options.exit || option.cleanup) {
     process.exit()
   }
 }
@@ -34,7 +32,7 @@ process.on('uncaughtException', exitHandler.bind(null, {exit: true}))
 
 function gameUpdate () {
   currIdAnswer = 0
-  listUser = db.getLeaderboard()
+  // db.createDatabase()
   console.log('start send question')
   sendQuestion()
 }
@@ -48,85 +46,51 @@ function sendQuestion () {
   countPlayerAnswerCorrect = 0
   countPlayerAnswerWrong = 0
   io.emit('question', {'question': currQuestion,
-  'idAnswer': currIdAnswer})
+  'idAnswer': currIdAnswer.toString(), 'answer': currAnswer})
 
   setTimeout(function () { sendAnswer() }, 3000)
 }
 
 function sendAnswer () {
   // canculate wrong/corrrect/noattend
-  updateBoardRank();
-  var rankJson = createJsonBoardRank()
+
+  var rankJson = createJsonBoardRank(db.getLeaderboard())
   io.emit('answer', {'answer': currAnswer,
     'idAnswer': currIdAnswer.toString(),
     'attend': countPlayerReceiveQuestion,
     'correct': countPlayerAnswerCorrect,
-  'wrong': countPlayerAnswerWrong,'leaderboard':rankJson})
+  'wrong': countPlayerAnswerWrong,'leaderboard': rankJson})
   setTimeout(function () { sendQuestion() }, 1000)
 }
 
-function createJsonBoardRank()
-{
+function createJsonBoardRank (boardUserRank) {
   var strRank = ''
   return strRank
 }
 
-function updateBoardRank () {
-  boardRank.cleanup()
-  boardRank = listUser.slice()
-  var tmp = []
-  for (i = 0; i < boardRank.length; i++) {
-    if (tmp.indexOf(boardRank[i].score) != -1)
-      tmp.push(boardRank[i].score)
-  }
-  var t = null
-  for (i = 0; i < tmp.length; i++) {
-    for (j = tmp.length - 1; j > i; j++) {
-      if (tmp[j] < tmp[j - 1]) {
-        t = tmp[j]
-        tmp[j] = tmp[j - 1]
-        tmp[j - 1] = t
-      }
-    }
-  }
-
-  boardRank.forEach(function (item, index) {
-    item.rank = tmp.indexOf(item.score)
-  })
-}
-
-// sort on values
-function srt (desc) {
-  return function (a, b) {
-    return desc ? ~~(a < b) : ~~(a > b)
-  }
-}
-
-// sort on key values
-function keysrt (key, desc) {
-  return function (a, b) {
-    return desc ? ~~(a[key] < b[key]) : ~~(a[key] > b[key])
-  }
-}
-
 io.on('connection', function (socket) {
-  console.log('has connect')
-  socket.on('login', function () {
-    console.log('bee')
-  // socket.emit('boop')
+  var user = null
+  socket.on('login', function (idUser) {
+    user = db.login(idUser)
+    sendInfoUser()
   })
 
-  socket.on('regisaccount', function (username, password, useremail) {})
+  socket.on('regisaccount', function (userid, username) {
+    user = db.regis(userid, username)
+    sendInfoUser()
+  }
+
+  )
 
   socket.on('answer', function (answer, id) {
     if (answer == currQuestion && id == currIdAnswer) {
-      score++
+      user.score++
       // save score
       countPlayerAnswerCorrect += 1
     }else if (answer != currQuestion && id == currIdAnswer) {
-      score -= 10
-      if (score < 0) {
-        score = 0
+      user.score -= 10
+      if (user.score < 0) {
+        user.score = 0
       }
       countPlayerAnswerWrong++
     }
@@ -138,13 +102,18 @@ io.on('connection', function (socket) {
 
   socket.on('beep', function () {
     console.log('beep')
-    checkBeep()
   })
+
+  socket.on('leaderboard', function () {
+    socket.emit('leaderboard', {'leaderboard': createJsonBoardRank(db.getLeaderboard())})
+  })
+
+  function sendInfoUser () {
+    if (user != null)
+      socket.emit('infouser', {'username': user.username,'score': user.score,'rank': user.rank})
+  }
 })
 
-function checkBeep () {
-  console.log('check beep')
-}
 var dictGame = new worddict()
 
 server.listen(4568, function () {
