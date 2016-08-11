@@ -10,33 +10,39 @@ function DataUserManager () {
     db.run('CREATE TABLE user (id INTEGER PRIMARY KEY AUTOINCREMENT, iduser text,username text ,score INTEGER)')
   }
 
-  this.login = function (idUser) {
+  this.login = function (idUser, callback) {
     var user = null
-    db.each('select  p1.*, (select  count(*) from scores as p2   where   p2.score > p1.score ) as rank from scores as p1 where p1.iduser = ?', userid, function (err, row) {
+    db.each('select  p1.*, (select  count(*) from user as p2   where   p2.score > p1.score ) as rank from user as p1 where p1.iduser = ?', userid, function (err, row) {
       user = new userModel(row.id, row.userid , row.username, row.score, row.rank)
       if (user != null) {
-        return user
+        callback(user)
       }else {
-        return null
+        // return null
       }
     })
   }
 
-  this.regis = function (idUser, username) {
+
+  this.regis = function (idUser, username, callback) {
+    console.log(username)
     db.run('INSERT INTO user(iduser,username,score) VALUES (?,?,?)', [idUser, username, 0], function (err) {
       if (err) {
-        return null
+        throw err
       }else {
         var user = null
-        db.each('select  p1.*, (select  count(*) from scores as p2   where   p2.score > p1.score ) as rank from scores as p1 where p1.iduser = ?', idUser, function (err, row) {
-          if (err) {
-            return null
-          }else {
+        console.log('insert success + idUser: ' + idUser)
+        db.each('select  p1.*, (select  count(*) from user as p2   where   p2.score > p1.score ) as rank from user as p1 where p1.iduser = ?', [idUser], function (err, row) {
+          if (err)
+            throw err
+          else {
+            console.log('select success')
             user = new userModel(row.id, row.userid , row.username, row.score, row.rank)
             if (user == null) {
               console.log('regis fail')
+            }else {
+              console.log('call send info')
+              callback(user)
             }
-            return user
           }
         })
       }
@@ -46,7 +52,7 @@ function DataUserManager () {
     db.run('UPDATE scores SET score = ? WHERE idUser= ? ', score, userid)
   }
 
-  this.getLeaderboard = function () {
+  this.getLeaderboard = function (callback) {
     var listUser = []
     var rank = 0
     db.each('SELECT * FROM user ORDER BY score DESC', function (err, row) {
@@ -54,7 +60,8 @@ function DataUserManager () {
       rank = rank + 1
       listUser.push(user)
     }, function () {
-      return listUser
+      //console.log("finish read leaderboard")
+      callback(listUser)
     })
   }
 

@@ -48,51 +48,61 @@ function sendQuestion () {
   io.emit('question', {'question': currQuestion,
   'idAnswer': currIdAnswer.toString(), 'answer': currAnswer})
 
-  setTimeout(function () { sendAnswer() }, 3000)
+  setTimeout(function () { readLeaderboard() }, 3000)
 }
 
-function sendAnswer () {
+function readLeaderboard () {
+  db.getLeaderboard(sendAnswer)
+}
+function sendAnswer (boardUserRank) {
   // canculate wrong/corrrect/noattend
 
-  var rankJson = createJsonBoardRank(db.getLeaderboard())
+  var rankJson = createJsonBoardRank(boardUserRank)
   io.emit('answer', {'answer': currAnswer,
     'idAnswer': currIdAnswer.toString(),
-    'attend': countPlayerReceiveQuestion,
-    'correct': countPlayerAnswerCorrect,
-  'wrong': countPlayerAnswerWrong,'leaderboard': rankJson})
+    'attend': countPlayerReceiveQuestion.toString(),
+    'correct': countPlayerAnswerCorrect.toString(),
+  'wrong': countPlayerAnswerWrong.toString(),'leaderboard': rankJson})
   setTimeout(function () { sendQuestion() }, 1000)
 }
 
 function createJsonBoardRank (boardUserRank) {
-  var strRank = ''
+  //console.log('create json leaderboard')
+  var strRank = JSON.stringify(boardUserRank)
+  //console.log(JSON.stringify(boardUserRank))
+  strRank = 'leaderboard'
   return strRank
 }
 
 io.on('connection', function (socket) {
   var user = null
-  socket.on('login', function (idUser) {
-    user = db.login(idUser)
-    sendInfoUser()
+  socket.on('login', function (message) {
+    db.login(message['idUser'], sendInfoUser)
   })
 
-  socket.on('regisaccount', function (userid, username) {
-    user = db.regis(userid, username)
-    sendInfoUser()
+  socket.on('regisaccount', function (message) {
+    db.regis(message['userid'], message['username'], sendInfoUser)
   }
 
   )
 
-  socket.on('answer', function (answer, id) {
-    if (answer == currQuestion && id == currIdAnswer) {
-      user.score++
-      // save score
-      countPlayerAnswerCorrect += 1
-    }else if (answer != currQuestion && id == currIdAnswer) {
-      user.score -= 10
-      if (user.score < 0) {
-        user.score = 0
+  socket.on('answer', function (message) {
+    if (user != null) {
+      var receiveAnswer = message['answer']
+
+      if (receiveAnswer == currAnswer && message['id'] == currIdAnswer) {
+        user.score++
+        // save score
+        countPlayerAnswerCorrect += 1
+      }else if (message['answer'] != currAnswer && message['id'] == currIdAnswer) {
+        user.score -= 10
+        if (user.score < 0) {
+          user.score = 0
+        }
+        countPlayerAnswerWrong++
       }
-      countPlayerAnswerWrong++
+    }else {
+      console.log('uswer == null')
     }
   })
 
@@ -108,9 +118,9 @@ io.on('connection', function (socket) {
     socket.emit('leaderboard', {'leaderboard': createJsonBoardRank(db.getLeaderboard())})
   })
 
-  function sendInfoUser () {
-    if (user != null)
-      socket.emit('infouser', {'username': user.username,'score': user.score,'rank': user.rank})
+  function sendInfoUser (_user) {
+    user = _user
+    socket.emit('infouser', {'username': user.username,'score': user.score,'rank': user.rank})
   }
 })
 
