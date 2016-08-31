@@ -13,7 +13,7 @@ function DataUserManager () {
   this.login = function (idUser, callback) {
     var user = null
     db.each('select  p1.*, (select  count(*) from user as p2   where   p2.score > p1.score ) as rank from user as p1 where p1.iduser = ?', userid, function (err, row) {
-      user = new userModel(row.id, row.userid , row.username, row.score, row.rank)
+      user = new userModel(row.id, row.iduser , row.username, row.score, row.rank)
       if (user != null) {
         callback(user)
       }else {
@@ -36,7 +36,7 @@ function DataUserManager () {
             throw err
           else {
             console.log('select success')
-            user = new userModel(row.id, row.userid , row.username, row.score, row.rank)
+            user = new userModel(row.id, row.iduser , row.username, row.score, row.rank)
             if (user == null) {
               console.log('regis fail')
             }else {
@@ -49,14 +49,17 @@ function DataUserManager () {
     })
   }
   this.updateUser = function (userid, score) {
-    db.run('UPDATE scores SET score = ? WHERE idUser= ? ', score, userid)
+    db.run('UPDATE user SET score = ? WHERE idUser = ? ', score, userid)
   }
 
   this.getLeaderboard = function (callback) {
     var listUser = []
     var rank = 0
     db.each('SELECT * FROM user ORDER BY score DESC', function (err, row) {
-      var user = new userModel(row.id, row.idUser, row.username, row.score, rank + 1)
+      
+      var user = new userModel(row.id, row.iduser, row.username, row.score, rank + 1)
+      
+      
       rank = rank + 1
       listUser.push(user)
     }, function () {

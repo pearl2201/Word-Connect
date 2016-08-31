@@ -1,5 +1,5 @@
-var User = function(id,userid,username, score,rank){
-   this.id = id
+var User = function (id, userid, username, score, rank) {
+    this.id = id
     this.userid = userid
     this.username = username;
     this.score = score;
