@@ -79,7 +79,7 @@ this.getLeaderboard2 = function (callback) {
     
     var listUser = []
     var rank = 0
-    db.each('SELECT * FROM user ORDER BY score DESC', function (err, row) {
+    db.each('SELECT * FROM user ORDER BY score DESC LIMIT 50', function (err, row) {
       var user = new userModel(row.id, row.iduser, row.username, row.score, rank + 1)
 
       rank = rank + 1

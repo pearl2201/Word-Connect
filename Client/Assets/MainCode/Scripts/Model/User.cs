@@ -76,7 +76,10 @@ public class User
         }
     }
 
-
+    public override string ToString()
+    {
+        return "user: id - " + mobileId + " - username: - " + username + " - score: " + score + " - rank: " + rank;
+    }
 }
 
 public class MiniUser

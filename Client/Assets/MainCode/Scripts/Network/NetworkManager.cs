@@ -175,19 +175,20 @@ public class NetworkManager : MonoBehaviour
 
     public void ReceiveInfoUser(SocketIOEvent e)
     {
-        Debug.Log("receive info user");
+       
         if (e.data == null)
         {
             Debug.Log("data null");
             return;
         }
         string username = e.data.GetField("username").str;
-        Debug.Log("username: " + username);
+     
         int score = int.Parse(e.data.GetField("score").str);
-        Debug.Log("score: " + score);
+       
         int rank = int.Parse(e.data.GetField("rank").str);
-        Debug.Log("rank: " + rank);
+       
         Config.user = new User(Config.GetAndroidID(), username, score, rank);
+      
         screenManager.OpenWelcomeScreen();
     }
 
@@ -209,18 +210,17 @@ public class NetworkManager : MonoBehaviour
         Debug.Log("[SocketIO] Close received: " + e.name + " " + e.data);
     }
 
-    void Update()
+   
+
+    public void Close()
     {
-        if (Input.GetKey(KeyCode.Escape))
-        {
-            socket.Emit("exit");
-            Debug.Log("emit exit");
-        }
+        socket.Emit("exit");
+        socket.Close();
     }
     void OnApplicationQuit()
     {
 
-        socket.Close();
+        
     }
 
 

@@ -10,7 +10,15 @@ public class ScreenManager : MonoBehaviour
     public InfoScreenManager infoScreenManager;
     public NetworkManager networkManager;
     public bool isLockScreen;
-
+    void Update()
+    {
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            networkManager.Close();
+            Application.Quit();
+            
+        }
+    }
     public void OpenLeaderboard(string js)
     {
         menuScreenManager.gameObject.SetActive(false);
@@ -32,6 +40,7 @@ public class ScreenManager : MonoBehaviour
     {
         gameScreenManager.gameObject.SetActive(true);
         menuScreenManager.gameObject.SetActive(false);
+        isLockScreen = false;
     }
 
     public void OpenWelcomeScreen()
@@ -46,6 +55,7 @@ public class ScreenManager : MonoBehaviour
     {
         menuScreenManager.gameObject.SetActive(true);
         menuScreenManager.OpenSignInPopup();
+        isLockScreen = false;
     }
 
 
@@ -54,5 +64,6 @@ public class ScreenManager : MonoBehaviour
         if (!menuScreenManager.gameObject.activeSelf)
             menuScreenManager.gameObject.SetActive(true);
         menuScreenManager.OpenStartPopup();
+        isLockScreen = false;
     }
 }

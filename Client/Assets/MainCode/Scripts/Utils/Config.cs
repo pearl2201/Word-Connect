@@ -41,7 +41,7 @@ public class Config
                 ANDROID_ID = tmpStr;
             }
         }
-        Debug.Log("Android Id: " + ANDROID_ID);
+
         return ANDROID_ID;
     }
 

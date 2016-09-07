@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using SimpleJSON;
 public class GameScreenManager : MonoBehaviour
 {
 
@@ -24,10 +25,16 @@ public class GameScreenManager : MonoBehaviour
     private tk2dTextMesh txtScore;
     [SerializeField]
     private tk2dTextMesh txtRank;
+
+    [SerializeField]
+    private tk2dSprite sprFlash;
     // Use this for initialization
     void Start()
     {
         listBtnQuestionSelect = new List<BtnQuestion>();
+       
+        txtRank.text = "RANK\n" + Config.user.Rank;
+        txtScore.text = "SCORE\n" + Config.user.Score ;
     }
 
     void OnEnable()
@@ -188,36 +195,74 @@ public class GameScreenManager : MonoBehaviour
         {
 
         }
-        else
+        else if (Config.gameState == GameState.ingame)
         {
-            Debug.Log("receive answer: " + answer);
+          
             txtResult.text = answer;
             txtPlayerCountResult.text = "Count player receive question: " + countAttend + "\nCount player correct: " + countCorrect + "\nCount player answer wrong: " + countWrong;
-            //JSONObject js = new JSONObject(leaderBoard);
+            leaderBoard = leaderBoard.Replace("\\\"", "\"");
 
-            //foreach (JSONObject j in js.list)
-            //{
-            //    if (j.GetField("userid").str.Equals(Config.GetAndroidID()))
-            //    {
-            //        int nextScore = int.Parse(j.GetField("score").str);
-            //        Config.user.Rank = int.Parse(j.GetField("rank").str);
-            //        txtRank.text = "" + Config.user.Rank;
-            //        txtScore.text = "" + nextScore;
-            //        if (nextScore > Config.user.Score)
-            //        {
-            //            // correct
-            //            Debug.Log("correct");
-            //        }
-            //        else
-            //        {
-            //            Debug.Log("wrong");
-            //            // wrong
-            //        }
-            //        Config.user.Score = nextScore;
-            //    }
-            //}
-            Debug.Log("leaderboard: " + leaderBoard);
+
+            var data = JSON.Parse(leaderBoard);
+
+
+            var arr = data.AsArray;
+            foreach (var tj in arr)
+            {
+                var j = JSON.Parse(tj.ToString());
+                string id = j["userid"];
+                if (id == Config.GetAndroidID())
+                {
+                    Debug.Log("ok");
+                    int nextScore = j["score"].AsInt;
+                    Config.user.Rank = j["rank"].AsInt;
+                    txtRank.text = "RANK\n" + Config.user.Rank;
+                    txtScore.text = "SCORE\n" + nextScore;
+                    if (nextScore > Config.user.Score)
+                    {
+                        SoundManager.Instance.PlayTing();
+                        StartCoroutine(FlashResult(true));
+                    }
+                    else
+                    {
+                       
+                        SoundManager.Instance.PlayExplo();
+                        StartCoroutine(FlashResult(false));
+                    }
+                    Config.user.Score = nextScore;
+                }else
+                {
+                   
+                }
+            }
+            
         }
+    }
+
+    IEnumerator FlashResult(bool isCorrect)
+    {
+        Color c = isCorrect ? new Color(1,1,1,0.5f) : new Color(0,0,0,0.5f);
+        Color c1 = new Color(1,1,1,0);
+        
+        float p = 0;
+        sprFlash.gameObject.SetActive(true);
+        bool show = false;
+
+        while (p<=6f)
+        {
+            p += Time.deltaTime;
+            if (show)
+            {
+                sprFlash.color = c1;
+            }
+            else
+            {
+                sprFlash.color = c;
+            }
+            show = !show;
+            yield return null;
+        }
+        sprFlash.gameObject.SetActive(false);
     }
     public void ClickCommit()
     {
@@ -284,9 +329,14 @@ public class GameScreenManager : MonoBehaviour
         }
         txtCurrUserAnswer.text = currUserAnswer;
     }
+    [SerializeField]
+    private ScreenManager screenManager;
 
     public void Close()
     {
-
+        sprFlash.gameObject.SetActive(false);
+        waitingPopup.gameObject.SetActive(true);
+        screenManager.OpenStartScreen();
+        gameObject.SetActive(false);
     }
 }

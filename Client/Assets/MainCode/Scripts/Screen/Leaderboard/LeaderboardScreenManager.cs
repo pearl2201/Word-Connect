@@ -74,6 +74,12 @@ public class LeaderboardScreenManager : MonoBehaviour
 
     public void Close()
     {
+        for (int i =0; i<listItemLeaderboard.Count; i++)
+        {
+            Destroy(listItemLeaderboard[i].gameObject);
+        }
+
+        listItemLeaderboard.Clear();
         screenManager.OpenStartScreen();
         gameObject.SetActive(false);
     }
