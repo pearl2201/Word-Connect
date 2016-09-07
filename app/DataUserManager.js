@@ -10,18 +10,26 @@ function DataUserManager () {
     db.run('CREATE TABLE user (id INTEGER PRIMARY KEY AUTOINCREMENT, iduser text,username text ,score INTEGER)')
   }
 
-  this.login = function (idUser, callback) {
+  this.login = function (idUser, callback, callback2) {
     var user = null
-    db.each('select  p1.*, (select  count(*) from user as p2   where   p2.score > p1.score ) as rank from user as p1 where p1.iduser = ?', userid, function (err, row) {
-      user = new userModel(row.id, row.iduser , row.username, row.score, row.rank)
-      if (user != null) {
-        callback(user)
+    console.log('login: ' + idUser)
+    db.get('select  p1.*, (select  count(*) from user as p2   where   p2.score > p1.score ) as rank from user as p1 where p1.iduser = ?', idUser, function (err, row) {
+      console.log('wtf')
+      if (err) {
+        console.log(' not find user1')
       }else {
+        if (typeof row != 'undefined') {
+          console.log(' not find user2')
+          user = new userModel(row.id, row.iduser , row.username, row.score, row.rank)
+          callback(user)
+        }else {
+          console.log(' not find user')
+          callback2()
         // return null
+        }
       }
     })
   }
-
 
   this.regis = function (idUser, username, callback) {
     console.log(username)
@@ -38,7 +46,6 @@ function DataUserManager () {
             console.log('select success')
             user = new userModel(row.id, row.iduser , row.username, row.score, row.rank)
             if (user == null) {
-              console.log('regis fail')
             }else {
               console.log('call send info')
               callback(user)
@@ -53,21 +60,36 @@ function DataUserManager () {
   }
 
   this.getLeaderboard = function (callback) {
+  
     var listUser = []
     var rank = 0
     db.each('SELECT * FROM user ORDER BY score DESC', function (err, row) {
-      
       var user = new userModel(row.id, row.iduser, row.username, row.score, rank + 1)
-      
-      
+
       rank = rank + 1
       listUser.push(user)
+    //  console.log('push user')
     }, function () {
-      //console.log("finish read leaderboard")
+     
       callback(listUser)
     })
   }
 
+this.getLeaderboard2 = function (callback) {
+    
+    var listUser = []
+    var rank = 0
+    db.each('SELECT * FROM user ORDER BY score DESC', function (err, row) {
+      var user = new userModel(row.id, row.iduser, row.username, row.score, rank + 1)
+
+      rank = rank + 1
+      listUser.push(user)
+    //  console.log('push user')
+    }, function () {
+      
+      callback(listUser)
+    })
+  }
   this.getRankUser = function (userid) {
     var rank = 0
     db.each('select  p1.*, (select  count(*) from user as p2   where   p2.score > p1.score ) as rank from user as p1 where p1.iduser = ?', userid, function (err, row) {

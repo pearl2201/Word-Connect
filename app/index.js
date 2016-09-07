@@ -14,7 +14,7 @@ var db = new DataUserManager()
 var listIdUserActive = []
 process.stdin.resume() // so the program will not close instantly
 
-function exitHandler(options, err) {
+function exitHandler (options, err) {
   if (err) console.log(err.stack)
   else if (options.exit || option.cleanup) {
     process.exit()
@@ -30,14 +30,14 @@ process.on('SIGINT', exitHandler.bind(null, { exit: true }))
 // catches uncaught exceptions
 process.on('uncaughtException', exitHandler.bind(null, { exit: true }))
 
-function gameUpdate() {
+function gameUpdate () {
   currIdAnswer = 0
   // db.createDatabase()
   console.log('start send question')
   sendQuestion()
 }
 
-function sendQuestion() {
+function sendQuestion () {
   currAnswer = dictGame.getWord()
   currQuestion = dictGame.createQuestion(currAnswer)
   console.log(currQuestion + ' - ' + currAnswer)
@@ -50,16 +50,16 @@ function sendQuestion() {
     'idAnswer': currIdAnswer.toString(), 'answer': currAnswer
   })
 
-  setTimeout(function () { readLeaderboard() }, 3000)
+  setTimeout(function () { readLeaderboard() }, 18000)
 }
 
-function readLeaderboard() {
+function readLeaderboard () {
   db.getLeaderboard(sendAnswer)
 }
-function sendAnswer(boardUserRank) {
+function sendAnswer (boardUserRank) {
   // canculate wrong/corrrect/noattend
 
-  var rankJson = createJsonBoardRank(boardUserRank)
+  var rankJson = createJsonBoardRankOnline(boardUserRank)
   io.emit('answer', {
     'answer': currAnswer,
     'idAnswer': currIdAnswer.toString(),
@@ -67,21 +67,18 @@ function sendAnswer(boardUserRank) {
     'correct': countPlayerAnswerCorrect.toString(),
     'wrong': countPlayerAnswerWrong.toString(), 'leaderboard': rankJson
   })
-  setTimeout(function () { sendQuestion() }, 1000)
+  setTimeout(function () { sendQuestion() }, 7000)
 }
 
-function createJsonBoardRank(boardUserRank) {
- 
+function createJsonBoardRankOnline (boardUserRank) {
   var tmpUserRank = []
- 
-  
+
   for (i = 0; i < boardUserRank.length; i++) {
     if (listIdUserActive.indexOf(boardUserRank[i].userid) >= 0) {
-      console.log('id online: ' + (boardUserRank[i].userid))
-      tmpUserRank.push({ 'userid': boardUserRank[i].userid, 'rank:': boardUserRank[i].rank })
+      tmpUserRank.push({ 'userid': boardUserRank[i].userid,'score': boardUserRank[i].score, 'rank:': boardUserRank[i].rank })
     }
   }
- 
+
   var strRank = JSON.stringify(tmpUserRank)
 
   console.log(strRank)
@@ -89,17 +86,36 @@ function createJsonBoardRank(boardUserRank) {
   return strRank
 }
 
+
+function createJsonBoardRank (boardUserRank) {
+  var tmpUserRank = []
+
+  for (i = 0; i < boardUserRank.length; i++) {
+    
+      tmpUserRank.push({ 'userid': boardUserRank[i].userid, 'rank:': boardUserRank[i].rank })
+    
+  }
+
+  var strRank = JSON.stringify(tmpUserRank)
+
+  console.log(strRank)
+
+  return strRank
+}
 io.on('connection', function (socket) {
   var user = null
 
-
   socket.on('login', function (message) {
-
-    db.login(message['idUser'], sendInfoUser)
+    var userid = message['userid']
+    console.log(userid)
+    db.login(userid, sendInfoUser, sendRequestRegis)
   })
 
   socket.on('regisaccount', function (message) {
-    db.regis(message['userid'], message['username'], sendInfoUser)
+    var userid = message['userid']
+    var username = message['username']
+    console.log('regis: ' + userid + ' - username' + username)
+    db.regis(userid, username , sendInfoUser)
   }
 
   )
@@ -135,19 +151,32 @@ io.on('connection', function (socket) {
   })
 
   socket.on('leaderboard', function () {
-    socket.emit('leaderboard', { 'leaderboard': createJsonBoardRank(db.getLeaderboard()) })
+    db.getLeaderboard2(sendLeaderboard)
   })
 
-  function sendInfoUser(_user) {
-    user = _user
-    console.log('user login: ' + user.userid)
-    listIdUserActive.push(user.userid)
-    socket.emit('infouser', { 'username': user.username, 'score': user.score, 'rank': user.rank })
+  function sendLeaderboard (boardUserRank) {
+    console.log('leaderboard kkk')
+    socket.emit('leaderboard', { 'leaderboard': createJsonBoardRank(boardUserRank) })
   }
 
-  socket.on('exit', function (message) {
+  function sendRequestRegis () {
+    console.log('emit request regis')
+    socket.emit('requestregis')
+  }
+
+  function sendInfoUser (_user) {
+    user = _user
+    console.log('user login: ' + user.userid + ' score: ' + user.score + ' rank: ' + user.rank)
+    listIdUserActive.push(user.userid)
+    socket.emit('infouser', { 'username': user.username, 'score': user.score.toString(), 'rank': user.rank.toString() })
+  }
+
+  socket.on('exit', function () {
     var indexIdUser = listIdUserActive.indexOf(user.userid)
-    listIdUserActive = listIdUserActive.splice(indexIdUser, 1)
+    if (indexIdUser >= 0) {
+      listIdUserActive = listIdUserActive.splice(indexIdUser + 1, 1)
+      console.log('before: ' + listIdUserActive)
+    }
   })
 })
 
