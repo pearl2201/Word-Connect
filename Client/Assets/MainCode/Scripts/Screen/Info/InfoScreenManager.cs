@@ -3,6 +3,8 @@ using System.Collections;
 
 public class InfoScreenManager : MonoBehaviour {
 
+
+    public ScreenManager screenManager;
 	// Use this for initialization
 	void Start () {
 	
@@ -12,4 +14,11 @@ public class InfoScreenManager : MonoBehaviour {
 	void Update () {
 	
 	}
+
+    public void Close()
+    {
+        screenManager.OpenStartScreen();
+        gameObject.SetActive(false);
+        
+    }
 }

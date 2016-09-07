@@ -5,6 +5,7 @@ public class Config
 {
     public static string URL_SERVER = "ws://127.0.0.1:4568/socket.io/?EIO=4&transport=websocket";
     public static bool IS_AUTO_CONNECT = false;
+    public static bool isSoundOn = true;
     private static string ANDROID_ID = "";
     public static User user = null;
     public static GameState gameState;

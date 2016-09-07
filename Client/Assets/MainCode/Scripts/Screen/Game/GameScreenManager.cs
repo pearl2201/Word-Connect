@@ -284,4 +284,9 @@ public class GameScreenManager : MonoBehaviour
         }
         txtCurrUserAnswer.text = currUserAnswer;
     }
+
+    public void Close()
+    {
+
+    }
 }

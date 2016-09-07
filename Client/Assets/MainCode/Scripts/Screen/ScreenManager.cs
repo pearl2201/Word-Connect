@@ -53,6 +53,6 @@ public class ScreenManager : MonoBehaviour
     {
         if (!menuScreenManager.gameObject.activeSelf)
             menuScreenManager.gameObject.SetActive(true);
-        menuScreenManager.OpenSignInPopup();
+        menuScreenManager.OpenStartPopup();
     }
 }

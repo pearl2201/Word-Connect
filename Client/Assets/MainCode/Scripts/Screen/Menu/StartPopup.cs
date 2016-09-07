@@ -7,10 +7,29 @@ using UnityEngine;
 public class StartPopup : MonoBehaviour
 {
     public ScreenManager screenManager;
+    [SerializeField]
+    private GameObject icSoundOn;
+    [SerializeField]
+    private GameObject icSoundOff;
     void OnEnable()
     {
         Config.gameState = GameState.start;
+        if (Prefs.Instance.isSoundOn())
+        {
+            Config.isSoundOn = true;
+            icSoundOff.SetActive(false);
+            icSoundOn.SetActive(true);
+            SoundManager.Instance.PlayMusic();
+        }
+        else
+        {
+            Config.isSoundOn = false;
+            icSoundOff.SetActive(true);
+            icSoundOn.SetActive(false);
+        }
     }
+
+
 
     public void ClickStart()
     {
@@ -23,7 +42,20 @@ public class StartPopup : MonoBehaviour
 
     public void ClickTurnSound()
     {
-
+        Config.isSoundOn = !Config.isSoundOn;
+        Prefs.Instance.SetSound(Config.isSoundOn);
+        if (Config.isSoundOn)
+        {
+            icSoundOff.SetActive(false);
+            icSoundOn.SetActive(true);
+            SoundManager.Instance.PlayMusic();
+        }
+        else
+        {
+            icSoundOff.SetActive(true);
+            icSoundOn.SetActive(false);
+            SoundManager.Instance.StopMusic();
+        }
     }
 
     public void ClickLeaderboard()
@@ -34,7 +66,7 @@ public class StartPopup : MonoBehaviour
             screenManager.isLockScreen = true;
             NetworkManager.Instance.RequestLeaderboard();
         }
-       
+
 
     }
 

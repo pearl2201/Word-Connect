@@ -75,5 +75,6 @@ public class LeaderboardScreenManager : MonoBehaviour
     public void Close()
     {
         screenManager.OpenStartScreen();
+        gameObject.SetActive(false);
     }
 }
