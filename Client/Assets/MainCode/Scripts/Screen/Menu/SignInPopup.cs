@@ -6,8 +6,9 @@ public class SignInPopup : MonoBehaviour
 
 
     public bool isKeyBoardOpen;
+   
     [SerializeField]
-    private tk2dTextMesh txtCurrUsernameRegis;
+    private tk2dUITextInput inpText;
     private string usernameRegis;
     public ScreenManager screenManager;
     void OnEnable()
@@ -23,32 +24,14 @@ public class SignInPopup : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        UpdateKeyBoard();
+       
     }
 
     public void UpdateKeyBoard()
     {
 
-        TouchScreenKeyboard keyboard = null;
-
-
-        if (!isKeyBoardOpen)
-        {
-            keyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.ASCIICapable);
-            isKeyBoardOpen = true;
-        }
-
-        if (keyboard.done)
-        {
-            
-            SetUserName(keyboard.text);
-           
-            isKeyBoardOpen = false;
-        }
-        else
-        {
-            SetUserName(keyboard.text);
-        }
+        usernameRegis = inpText.Text;
+        
 
     }
 
@@ -57,9 +40,5 @@ public class SignInPopup : MonoBehaviour
         screenManager.isLockScreen = true;
         NetworkManager.Instance.Regis(usernameRegis);
     }
-    public void SetUserName(string username)
-    {
-        usernameRegis = username;
-        txtCurrUsernameRegis.text = username;
-    }
+   
 }

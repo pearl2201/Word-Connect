@@ -27,8 +27,8 @@ public class Prefs
     public static string KEY_ANDROIDID = "key_androidid";
     public Prefs()
     {
-        
 
+       
     }
 
     public string GetAndroidID()

@@ -108,15 +108,8 @@ public class NetworkManager : MonoBehaviour
     public void Regis(string usernameRegis)
     {
 
-        MiniUser miniUser = null;
-        if (!Application.isMobilePlatform)
-        {
-            miniUser = MiniUser.GenFakeUser();
-        }
-        else
-        {
-            miniUser = new MiniUser(Config.GetAndroidID(), usernameRegis);
-        }
+        MiniUser miniUser = new MiniUser(Config.GetAndroidID(), usernameRegis);
+
         JSONObject js = new JSONObject();
         js.AddField("userid", miniUser.MobileId);
         js.AddField("username", miniUser.Username);
@@ -183,7 +176,8 @@ public class NetworkManager : MonoBehaviour
     public void ReceiveInfoUser(SocketIOEvent e)
     {
         Debug.Log("receive info user");
-        if (e.data == null) {
+        if (e.data == null)
+        {
             Debug.Log("data null");
             return;
         }
@@ -225,7 +219,7 @@ public class NetworkManager : MonoBehaviour
     }
     void OnApplicationQuit()
     {
-       
+
         socket.Close();
     }
 
@@ -242,7 +236,8 @@ public class NetworkManager : MonoBehaviour
         {
             Debug.Log("tasgdsgsg");
             screenManager.OpenLeaderboard(e.data.GetField("leaderboard").str);
-        }else
+        }
+        else
         {
             Debug.Log("tatadadsa");
         }
