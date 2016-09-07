@@ -11,11 +11,12 @@ public class ScreenManager : MonoBehaviour
     public NetworkManager networkManager;
     public bool isLockScreen;
 
-    public void OpenLeaderboard(string dataLeaderboard)
+    public void OpenLeaderboard(string js)
     {
-        leaderboardScreenManager.gameObject.SetActive(true);
-        leaderboardScreenManager.Setup(dataLeaderboard);
         menuScreenManager.gameObject.SetActive(false);
+        leaderboardScreenManager.gameObject.SetActive(true);
+        leaderboardScreenManager.Setup(js);
+        
         
         isLockScreen = false;
     }

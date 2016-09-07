@@ -60,6 +60,7 @@
      <Compile Include="Assets\MainCode\Scripts\Screen\ScreenManager.cs" />
      <Compile Include="Assets\MainCode\Scripts\Utils\Config.cs" />
      <Compile Include="Assets\MainCode\Scripts\Utils\Prefs.cs" />
+     <Compile Include="Assets\MainCode\Scripts\Utils\SimpleJSON.cs" />
      <Compile Include="Assets\SocketIO\JSONObject\JSONObject.cs" />
      <Compile Include="Assets\SocketIO\JSONObject\JSONTemplates.cs" />
      <Compile Include="Assets\SocketIO\JSONObject\VectorTemplates.cs" />

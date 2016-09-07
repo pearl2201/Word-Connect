@@ -193,29 +193,29 @@ public class GameScreenManager : MonoBehaviour
             Debug.Log("receive answer: " + answer);
             txtResult.text = answer;
             txtPlayerCountResult.text = "Count player receive question: " + countAttend + "\nCount player correct: " + countCorrect + "\nCount player answer wrong: " + countWrong;
-            JSONObject js = new JSONObject(leaderBoard);
+            //JSONObject js = new JSONObject(leaderBoard);
 
-            foreach (JSONObject j in js.list)
-            {
-                if (j.GetField("userid").str.Equals(Config.GetAndroidID()))
-                {
-                    int nextScore = int.Parse(j.GetField("score").str);
-                    Config.user.Rank = int.Parse(j.GetField("rank").str);
-                    txtRank.text = "" + Config.user.Rank;
-                    txtScore.text = "" + nextScore;
-                    if (nextScore > Config.user.Score)
-                    {
-                        // correct
-                        Debug.Log("correct");
-                    }
-                    else
-                    {
-                        Debug.Log("wrong");
-                        // wrong
-                    }
-                    Config.user.Score = nextScore;
-                }
-            }
+            //foreach (JSONObject j in js.list)
+            //{
+            //    if (j.GetField("userid").str.Equals(Config.GetAndroidID()))
+            //    {
+            //        int nextScore = int.Parse(j.GetField("score").str);
+            //        Config.user.Rank = int.Parse(j.GetField("rank").str);
+            //        txtRank.text = "" + Config.user.Rank;
+            //        txtScore.text = "" + nextScore;
+            //        if (nextScore > Config.user.Score)
+            //        {
+            //            // correct
+            //            Debug.Log("correct");
+            //        }
+            //        else
+            //        {
+            //            Debug.Log("wrong");
+            //            // wrong
+            //        }
+            //        Config.user.Score = nextScore;
+            //    }
+            //}
             Debug.Log("leaderboard: " + leaderBoard);
         }
     }

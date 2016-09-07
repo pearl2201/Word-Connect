@@ -92,7 +92,7 @@ function createJsonBoardRank (boardUserRank) {
 
   for (i = 0; i < boardUserRank.length; i++) {
     
-      tmpUserRank.push({ 'userid': boardUserRank[i].userid, 'rank:': boardUserRank[i].rank })
+      tmpUserRank.push({ 'username':boardUserRank[i].username ,'score': boardUserRank[i].score })
     
   }
 

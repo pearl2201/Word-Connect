@@ -231,10 +231,10 @@ public class NetworkManager : MonoBehaviour
 
     public void ReceiveLeaderboard(SocketIOEvent e)
     {
-        Debug.Log("receive leaderboard: " + Config.gameState.ToString());
+     
         if (Config.gameState == GameState.start)
         {
-            Debug.Log("tasgdsgsg");
+          
             screenManager.OpenLeaderboard(e.data.GetField("leaderboard").str);
         }
         else
