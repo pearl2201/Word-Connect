@@ -27,7 +27,7 @@
 #endregion
 
 using System;
-
+using SimpleJSON;
 namespace SocketIO
 {
 	public class Ack
@@ -35,16 +35,16 @@ namespace SocketIO
 		public int packetId;
 		public DateTime time;
 
-		private System.Action<JSONObject> action;
+		private System.Action<JSONNode> action;
 
-		public Ack(int packetId, System.Action<JSONObject> action)
+		public Ack(int packetId, System.Action<JSONNode> action)
 		{
 			this.packetId = packetId;
 			this.time = DateTime.Now;
 			this.action = action;
 		}
 
-		public void Invoke(JSONObject ev)
+		public void Invoke(JSONNode ev)
 		{
 			action.Invoke(ev);
 		}

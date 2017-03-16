@@ -26,12 +26,12 @@
  */
 #endregion
 using UnityEngine;
-
+using SimpleJSON;
 namespace SocketIO
 {
 	public class Parser
 	{
-		public SocketIOEvent Parse(JSONObject json)
+		public SocketIOEvent Parse(JSONNode json)
 		{
 			if (json.Count < 1 || json.Count > 2) {
 				throw new SocketIOException("Invalid number of parameters received: " + json.Count);

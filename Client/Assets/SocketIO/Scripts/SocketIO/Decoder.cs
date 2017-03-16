@@ -32,7 +32,7 @@ using System.Collections;
 using System.Text;
 using UnityEngine;
 using WebSocketSharp;
-
+using SimpleJSON;
 namespace SocketIO
 {
 	public class Decoder
@@ -99,7 +99,7 @@ namespace SocketIO
 						#if SOCKET_IO_DEBUG
 						Debug.Log("[SocketIO] Parsing JSON: " + data.Substring(offset));
 						#endif
-						packet.json = new JSONObject(data.Substring(offset));
+						packet.json = JSON.Parse(data.Substring(offset));
 					} catch (Exception ex) {
 						Debug.LogException(ex);
 					}
